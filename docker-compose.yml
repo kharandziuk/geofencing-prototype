@@ -1,0 +1,14 @@
+# Services Should be defined in Alphabetical order!
+version: '2.2'
+services:
+
+  postgis:
+    image: mdillon/postgis:10
+    environment:
+      - POSTGRES_DB=test
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+    mem_limit: 300M
+    memswap_limit: 1G
+    ports:
+      - "127.0.0:5432:5432"
