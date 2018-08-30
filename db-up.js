@@ -19,18 +19,15 @@ const up = function() {
     .then(() => client.query(`
     CREATE FUNCTION notify_position() RETURNS trigger AS $$
     DECLARE
-      r record;
+      colocated_ids TEXT;
       BEGIN
-        FOR r IN (
-          SELECT id FROM tbl_positions WHERE ST_DISTANCE(
+        colocated_ids = (SELECT string_agg(id, ',') FROM tbl_positions WHERE ST_DISTANCE(
             position, NEW.position
-          ) < 300 and id <> NEW.id
-        ) LOOP
-          PERFORM pg_notify(
-            'q_event',
-            r.id
-          );
-        END LOOP;
+          ) < 500 and id <> NEW.id
+        );
+        IF length(colocated_ids) > 0 THEN
+            PERFORM pg_notify('q_event', NEW.id || '|' || colocated_ids);
+        END IF;
         RETURN new;
     END;
     $$ LANGUAGE plpgsql;
